@@ -3,8 +3,16 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 		tagName: 'tr',
 		template: '#contact-list-item',
 		
+		remove: function(){
+			var self = this;
+			this.$el.fadeOut(function(){
+				Marionette.ItemView.prototype.remove.call(self);
+			});
+		},
+
 		events: {
 			'click': 'highlightName',
+			'click td a.js-show': 'showClicked',
 			'click button.js-delete': 'deleteClicked'
 		},
 
@@ -13,9 +21,15 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 			this.$el.toggleClass('warning');
 		},
 
+		showClicked: function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			this.trigger('contact:show', this.model);
+		},
+
 		deleteClicked: function(e) {
 			e.stopPropagation();
-			alert('delete was clicked');
+			this.trigger('contact:delete', this.model);
 		}
 	});
 
