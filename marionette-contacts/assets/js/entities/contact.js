@@ -24,23 +24,42 @@ ContactManager.module('Entities', function(Entities, ContactManager, Backbone, M
 			contact.save();
 		});
 
-		return contacts;
+		return contacts.models;
 	};
 
 	var API = {
 		getContactEntities: function(){
 			var contacts = new Entities.ContactCollection();
-			contacts.fetch();
-			if(contacts.length === 0){
-				return initlializeContacts();
-			}
-			return contacts;
+			var defer = $.Deferred();
+			contacts.fetch({
+				success: function(data){
+					defer.resolve(data);
+				}
+			});
+			var promise = defer.promise();
+			$.when(promise).done(function(fetchedContacts){
+				if(fetchedContacts.length === 0){
+					var models = initlializeContacts();
+					contacts.reset(models);
+				}
+			});
+			return promise;
 		},
 
 		getContactEntity: function(contactId){
 			var contact = new Entities.Contact({id: contactId});
-			contact.fetch();
-			return contact;
+			var defer = $.Deferred();
+			setTimeout(function(){
+				contact.fetch({
+					success: function(data){
+						defer.resolve(data);
+					},
+					error: function(data){
+						defer.resolve(undefined);
+					}
+				});
+			}, 2000);
+			return defer.promise();
 		}
 	};
 
