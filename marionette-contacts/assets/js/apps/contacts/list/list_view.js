@@ -9,7 +9,11 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 	});
 
 	List.Panel = Marionette.ItemView.extend({
-		template: '#contact-list-panel'
+		template: '#contact-list-panel',
+
+		triggers: {
+			'click button.js-new': 'contact:new'
+		}
 	});
 
 	List.Contact = Marionette.ItemView.extend({

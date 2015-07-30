@@ -17,7 +17,35 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 				contactsListLayout.on('show', function(){
 					contactsListLayout.panelRegion.show(contactsListPanel);
 					contactsListLayout.contactsRegion.show(contactsListView);
-				})
+				});
+
+				contactsListPanel.on('contact:new', function(){
+					var newContact = new ContactManager.Entities.Contact();
+
+					var view = new ContactManager.ContactsApp.New.Contact({
+						model: newContact,
+						asModal: true
+					});
+
+					view.on('form:submit', function(data){
+						if(contacts.length > 0){
+							var highestId = contacts.max(function(c){ return c.id; }).get('id');
+							data.id = highestId + 1;
+						} else {
+							data.id = 1;
+						}
+
+						if(newContact.save(data)){
+							contacts.add(newContact);
+							ContactManager.dialogRegion.empty();
+							contactsListView.children.findByModel(newContact).flash('success');
+						} else {
+							view.triggerMethod('form:data:invalid', newContact.validationError);
+						}
+					});
+
+					ContactManager.regions.dialog.show(view);
+				});
 
 				contactsListView.on('childview:contact:show', function(childView, model){
 					ContactManager.trigger('contact:show', model.get('id'));
