@@ -2,6 +2,10 @@ ContactManager.module('ContactsApp.Edit', function(Edit, ContactManager, Backbon
 	Edit.Contact = Marionette.ItemView.extend({
 		template: '#contact-form',
 
+		initialize: function(){
+			this.title = 'Edit ' + this.model.get('firstName') + ' ' + this.model.get('lastName');
+		},
+
 		events: {
 			'click button.js-submit': 'submitClicked'
 		},
@@ -10,6 +14,36 @@ ContactManager.module('ContactsApp.Edit', function(Edit, ContactManager, Backbon
 			e.preventDefault();
 			var data = Backbone.Syphon.serialize(this);
 			this.trigger('form:submit', data);
+		},
+
+		onRender: function(){
+			if(!this.options.asModal){
+				var $title = $('<h1>', { text: this.title });
+				this.$el.prepend($title);
+			}
+		},
+
+		onFormDataInvalid: function(errors){
+			var $view = this.$el;
+
+			var clearFormErrors = function(){
+				var $form = $view.find('form');
+				$form.find('.error').each(function(){
+					$(this).remove();
+				});
+				$form.find('.form-group.has-error').each(function(){
+					$(this).removeClass('has-error');
+				});
+			}
+
+			var markErrors = function(value, key){
+				var $controlGroup = $view.find('#contact-' + key).parent();
+				var $errorEl = $('<span>', {class: 'help-block error', text: value});
+				$controlGroup.append($errorEl).addClass('has-error');
+			}
+
+			clearFormErrors();
+			_.each(errors, markErrors);
 		}
 	});
 });
