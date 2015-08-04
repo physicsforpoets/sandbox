@@ -91,7 +91,7 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 					ContactManager.regions.dialog.show(view);
 				});
 
-				contactsListView.on('childview:contact:delete', function(childView, model){
+				contactsListView.on('childview:contact:delete', function(childView, args){
 					args.model.destroy();
 				}); // on childview:contact:delete
 
