@@ -12,11 +12,15 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 			var contactsListPanel = new List.Panel();
 
 			$.when(fetchingContacts).done(function(contacts){
+
+				var filteredContacts = ContactManager.Entities.FilteredCollection({
+					collection: contacts
+				});
 				
 				// Instantiate View
 
 				var contactsListView = new List.Contacts({
-					collection: contacts
+					collection: filteredContacts
 				});
 
 				// On Layout 'show', attach the Control Panel and List View to the Layout
@@ -27,6 +31,10 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 				}); // on show
 
 				// Attach View event listeners
+
+				contactsListPanel.on('contacts:filter', function(filterCriterion){
+					filteredContacts.filter(filterCriterion);
+				});
 
 				contactsListPanel.on('contact:new', function(){
 					var newContact = new ContactManager.Entities.Contact();
