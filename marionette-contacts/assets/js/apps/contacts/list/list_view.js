@@ -19,6 +19,12 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 	List.Contact = Marionette.ItemView.extend({
 		tagName: 'tr',
 		template: '#contact-list-item',
+
+		triggers: {
+			'click td a.js-show': 'contact:show',
+			'click td a.js-edit': 'contact:edit',
+			'click button.js-delete': 'contact:delete'
+		},
 		
 		remove: function(){
 			var self = this;
@@ -28,10 +34,7 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 		},
 
 		events: {
-			'click': 'highlightName',
-			'click td a.js-show': 'showClicked',
-			'click td a.js-edit': 'editClicked',
-			'click button.js-delete': 'deleteClicked'
+			'click': 'highlightName'
 		},
 
 		flash: function(cssClass){
@@ -46,23 +49,6 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 		highlightName: function(e) {
 			e.preventDefault();
 			this.$el.toggleClass('warning');
-		},
-
-		showClicked: function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			this.trigger('contact:show', this.model);
-		},
-
-		editClicked: function(e){
-			e.preventDefault();
-			e.stopPropagation();
-			this.trigger('contact:edit', this.model);
-		},
-
-		deleteClicked: function(e) {
-			e.stopPropagation();
-			this.trigger('contact:delete', this.model);
 		}
 	});
 
@@ -71,6 +57,22 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 		className: 'table table-hover',
 		template: '#contact-list',
 		childView: List.Contact,
-		childViewContainer: 'tbody'
+		childViewContainer: 'tbody',
+
+		initialize: function(){
+			// restore default view rendering if collection is reset
+			this.listenTo(this.collection, 'reset', function(){
+				this.attachHtml = function(collectionView, childView, index){
+					collectionView.$el.append(childView.el);
+				}
+			})
+		},
+
+		// override view appending
+		onRenderCollection: function(){
+			this.attachHtml = function(collectionView, childView, index){
+				collectionView.$el.prepend(childView.el);
+			}
+		}
 	});
 });

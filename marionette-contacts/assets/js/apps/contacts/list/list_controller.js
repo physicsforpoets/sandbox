@@ -6,18 +6,27 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 
 			var fetchingContacts = ContactManager.request('contact:entities');
 
+			// Instantiate List Layout and control panel views
+
 			var contactsListLayout = new List.Layout();
 			var contactsListPanel = new List.Panel();
 
 			$.when(fetchingContacts).done(function(contacts){
+				
+				// Instantiate View
+
 				var contactsListView = new List.Contacts({
 					collection: contacts
 				});
 
+				// On Layout 'show', attach the Control Panel and List View to the Layout
+
 				contactsListLayout.on('show', function(){
 					contactsListLayout.panelRegion.show(contactsListPanel);
 					contactsListLayout.contactsRegion.show(contactsListView);
-				});
+				}); // on show
+
+				// Attach View event listeners
 
 				contactsListPanel.on('contact:new', function(){
 					var newContact = new ContactManager.Entities.Contact();
@@ -37,7 +46,7 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 
 						if(newContact.save(data)){
 							contacts.add(newContact);
-							ContactManager.dialogRegion.empty();
+							ContactManager.regions.dialog.empty();
 							contactsListView.children.findByModel(newContact).flash('success');
 						} else {
 							view.triggerMethod('form:data:invalid', newContact.validationError);
@@ -45,22 +54,22 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 					});
 
 					ContactManager.regions.dialog.show(view);
-				});
+				}); // on contact:new
 
-				contactsListView.on('childview:contact:show', function(childView, model){
-					ContactManager.trigger('contact:show', model.get('id'));
-				});
+				contactsListView.on('childview:contact:show', function(childView, args){
+					ContactManager.trigger('contact:show', args.model.get('id'));
+				}); // on childview:contact:show
 
-				contactsListView.on('childview:contact:delete', function(childView, model){
-					model.destroy();
-				});
+				contactsListView.on('childview:contact:edit', function(childView, args){
+					var model = args.model;
 
-				contactsListView.on('childview:contact:edit', function(childView, model){
+					// Create Edit modal
 					var view = new ContactManager.ContactsApp.Edit.Contact({
 						model: model,
 						asModal: true
 					});
 
+					// Attach model View events
 					view.on('form:submit', function(data){
 						if(model.save(data)){
 							childView.render();
@@ -78,11 +87,16 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 						});
 					});
 
+					// display modal
 					ContactManager.regions.dialog.show(view);
 				});
 
+				contactsListView.on('childview:contact:delete', function(childView, model){
+					args.model.destroy();
+				}); // on childview:contact:delete
+
 				ContactManager.regions.main.show(contactsListLayout);
-			});
+			}); // childview:contact:edit
 		}
 	}
 });
