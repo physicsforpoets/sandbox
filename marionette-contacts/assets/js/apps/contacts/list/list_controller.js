@@ -32,8 +32,7 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 					var newContact = new ContactManager.Entities.Contact();
 
 					var view = new ContactManager.ContactsApp.New.Contact({
-						model: newContact,
-						asModal: true
+						model: newContact
 					});
 
 					view.on('form:submit', function(data){
@@ -65,8 +64,7 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 
 					// Create Edit modal
 					var view = new ContactManager.ContactsApp.Edit.Contact({
-						model: model,
-						asModal: true
+						model: model
 					});
 
 					// Attach model View events
@@ -78,13 +76,6 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 						} else {
 							view.triggerMethod('form:data:invalid', model.validationError);
 						}
-					});
-
-					view.on('show', function(){
-						this.$el.dialog({
-							modal: true,
-							width: 'auto'
-						});
 					});
 
 					// display modal
