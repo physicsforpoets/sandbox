@@ -14,7 +14,19 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 			$.when(fetchingContacts).done(function(contacts){
 
 				var filteredContacts = ContactManager.Entities.FilteredCollection({
-					collection: contacts
+					collection: contacts,
+					filterFunction: function(filterCriterion){
+						var criterion = filterCriterion.toLowerCase();
+						return function(contact){
+							if(
+								contact.get('firstName').toLowerCase().indexOf(criterion) !== -1
+								|| contact.get('lastName').toLowerCase().indexOf(criterion) !== -1
+								|| contact.get('phoneNumber').toLowerCase().indexOf(criterion) !== -1
+							){
+								return contact;
+							}
+						}
+					}
 				});
 				
 				// Instantiate View
@@ -54,7 +66,10 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager, Backbon
 						if(newContact.save(data)){
 							contacts.add(newContact);
 							ContactManager.regions.dialog.empty();
-							contactsListView.children.findByModel(newContact).flash('success');
+							var newContactView = contactsListView.children.findByModel(newContact);
+							if(newContactView){
+								newContactView.flash('success');
+							}
 						} else {
 							view.triggerMethod('form:data:invalid', newContact.validationError);
 						}
